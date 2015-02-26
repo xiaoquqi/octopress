@@ -103,3 +103,6 @@ facebook_like: false
 # duoshuo comments
 duoshuo_comments: true
 duoshuo_short_name: xiaoquqi
+
+# Baidu Analytics
+baidu_analytics_tracking_id: d43617b82d6762df4e16d4c93de17177
