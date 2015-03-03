@@ -9,6 +9,8 @@ categories: [OpenStack, Salt, Cloud Computing]
 
 今天在查找salt中pillar嵌套pillar的方法时，无意之间发现了pillar除了可以直接使用文件(sls)外，也同时支持多种后端的数据存储方式。例如：MySQL, MongoDB, Ldap, json, cobbler甚至是puppet。这无疑为开发中的接口提供了极大的便利。
 
+<!-- more -->
+
 详细的支持列表可见：http://docs.saltstack.com/en/latest/ref/pillar/all/index.html#all-salt-pillars
 
 严格意义上来说，这篇博文并非完全原创，英文原文请参考：http://www.tmartin.io/articles/2014/salt-pillar-mongodb/

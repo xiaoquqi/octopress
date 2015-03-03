@@ -10,6 +10,8 @@ categories: [OpenStack, HA, Cloud Computing, Enterprise, VMWare]
 
 在我所经历的私有云项目中，也尝试了一些虚拟机级别的HA解决方案，我的个人观点是，如果将OpenStack作为一个项目，可以不提供HA，但是作为产品，必须要提供HA的解决方案(私有云)。这篇文章中提到HA实现的过程，也恰恰是我们在实际中遇到的状况，下面让我们来看一看OpenStack社区是如何设想实现该问题的。感谢 @陈沙克 微博提供的资料。
 
+<!-- more -->
+
 原文地址：http://blog.russellbryant.net/2014/10/15/openstack-instance-ha-proposal/
 
 在一个完美世界中(不是那个游戏公司)，OpenStack承载的云主机上运行的应用都应当具备天然的横向扩展能力和容灾能力。但是现实世界却并不是这样。我们一直看到在OpenStack运行传统负载的需求积极伴随而来的HA的需求。
