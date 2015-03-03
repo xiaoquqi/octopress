@@ -1,5 +1,10 @@
 /* from whiterspace */
 article {
+  h2.title, .entry-content {
+      p {
+          text-indent: 2em;
+      }
+  }
   img, video, .flash-video {
     @extend .flex-content;
     @extend .basic-alignment;
