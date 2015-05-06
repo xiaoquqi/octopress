@@ -11,7 +11,7 @@ OpenStack Kilo版本已经于2015年4月30日正式Release，这是OpenStack第1
 
 OpenStack Kilo版本的完整翻译版本可见：https://wiki.openstack.org/wiki/ReleaseNotes/Kilo/zh-hans
 
-OpenStack Kilo版本的翻译工作由我和我的同事裴莹莹(Wendy)共同完成，翻译校对工作由裴莹莹完成。如果翻译有任何问题，请各位多多指教。
+OpenStack Kilo版本的翻译工作由我和我的同事裴莹莹(Wendy)共同完成，翻译校对工作由裴莹莹完成。如果翻译有任何问题，请各位多多指正。
 
 <!-- more -->
 
