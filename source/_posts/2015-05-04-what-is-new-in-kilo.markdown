@@ -7,7 +7,7 @@ comments: true
 categories: [OpenStack, Cloud Computing]
 ---
 
-OpenStack Kilo版本已经于2015年4月30日正式Release，这是OpenStack第11个版本，距离OpenStack项目推出已经整整过去了5年多的时间。在这个阶段OpenStack得到不断的增强，同时OpenStack社区也成为即Linux之后的第二大开源社区，参与的人数、厂商众多，也成就了OpenStack今天盛世的局面。虽然OpenStack在今年经历了一些初创型企业的倒闭，但是随着国内的传统行业用户对OpenStack越来越重视，我们坚信OpenStack明天会更好。
+OpenStack Kilo版本已经于2015年4月30日正式Release，这是OpenStack第11个版本，距离OpenStack项目推出已经整整过去了5年多的时间。在这个阶段OpenStack得到不断的增强，同时OpenStack社区也成为即Linux之后的第二大开源社区，参与的人数、厂商众多，也成就了OpenStack今天盛世的局面。虽然OpenStack在今年经历了Nebula的倒闭，但是随着国内的传统行业用户对OpenStack越来越重视，我们坚信OpenStack明天会更好。
 
 OpenStack Kilo版本的完整翻译版本可见：https://wiki.openstack.org/wiki/ReleaseNotes/Kilo/zh-hans
 
