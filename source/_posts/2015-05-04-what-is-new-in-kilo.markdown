@@ -49,7 +49,7 @@ Horizon在K版本除了增强了对新增模块的支持，从UE的角度也为�
 
 * 支持向导式的创建虚拟机，现在还处于beta版本，如果想在Horizon里激活，可以通过设置local_setting.py的配置实现：
 
-```
+``` plain local_setting.py
 LAUNCH_INSTANCE_NG_ENABLED = True
 ```
 
@@ -59,7 +59,7 @@ LAUNCH_INSTANCE_NG_ENABLED = True
 
 * 支持简单的主题，主要通过修改_variables.scss和_style.scss完成对主题颜色和简单样式的修改，但是格局不能改变，修改local_settings.py
 
-```
+``` plain local_setting.py
 CUSTOM_THEME_PATH = 'static/themes/blue'
 ```
 
@@ -108,9 +108,8 @@ $brand-danger:          #E74C3C !default;
 
 ### Nova Scheduler
 
-* 标准化了conductor，compute与scheduler的接口，为之后的接口分离做好准备
+* 标准化了conductor，compute与scheduler的接口，为之后的接口分离做好准备，对于部分直接访问nova数据库的filters进行了优化，不再允许直接访问，参考链接：https://github.com/openstack/nova-specs/blob/master/specs/kilo/approved/isolate-scheduler-db-filters.rst
 * 对Scheduler做了一些优化，例如：Scheduler对于每一个请求都会重新进行Filters/Weighers，为了优化这个问题，将filter/weighter的初始化从handler移到scheduler，这样每次请求的时候都可以重新使用了。
-* 在下一个版本的时候，Scheduler将会分离到Gantt，所以在这个版本中为分离做了一些准备
 
 ### Libvirt NFV相关功能
 
@@ -127,7 +126,7 @@ $brand-danger:          #E74C3C !default;
 先来解释一下为什么需要API的微版本：主要原因在于现在这种API扩展方式，对于API实现的代码的增加或减少管理非常不方便，容易导致不一致性。引入微版本主要目的就是让开发人员在修改API代码时能够向前兼容，而不是加入一个新的API扩展；用户通过指定API的版本，在请求时也能决定是使用的具体的动作。
 
 包含版本的返回:
-```
+``` plain Result
 GET /
 {
      "versions": [
@@ -148,7 +147,7 @@ GET /
 ```
 
 客户端的Header信息：
-```
+``` plain Header
 X-OpenStack-Nova-API-Version: 2.114
 ```
 
@@ -156,7 +155,7 @@ X-OpenStack-Nova-API-Version: 2.114
 
 这个问题的产生主要是因为Evacuate的清理机制，主机名的变化会导致nova-compute重启过程中误删所有虚拟机，所以一个变通的方法是设置
 
-```
+``` plain nova.conf
 destroy_after_evacuate=False
 ```
 
@@ -166,7 +165,7 @@ destroy_after_evacuate=False
 
 * 自动进行镜像格式转化，例如，Ceph是使用RAW格式的，假如我们上传的是QCOW2，创建虚拟机时，就会经历一番上传下载的过程，速度异常缓慢。而且RAW格式通常都是原始大小，上传时候非常慢，完全可以通过上传小镜像自动转换为指定格式。
 * Glance支持多字段排序
-```
+``` plain API
 /images?sort_key=status&sort_dir=asc&sort_key=name&sort_dir=asc&sort_key=created_at&sort_dir=desc
 ```
 * 临时将镜像设置为非活跃状态，假如一个镜像里有病毒，管理员就会将该镜像设置为非活跃状态，在清理后重新发布该镜像，在这个过程中，所有非管理员用户都无法使用或者下载这个镜像
@@ -178,7 +177,7 @@ destroy_after_evacuate=False
 * 实现服务逻辑代码与数据库结构之间的解耦，支持Rolling更新
 * 一致性组是指具备公共操作的卷，逻辑上化为一组。在K版本中对增强一致性组的功能：可以添加、删除卷，从已经存在的快照创建新的组，关于一致性组的详细操作可以参考：http://docs.openstack.org/admin-guide-cloud/content/consistency-groups.html
 
-```
+``` plain cinder
 cinder consisgroup-update
 [--name NAME]
 [--description DESCRIPTION]
@@ -187,7 +186,7 @@ cinder consisgroup-update
 CG
 ```
 
-```
+``` plain cinder
 cinder consisgroup-create-from-src
 [--cgsnapshot CGSNAPSHOT]
 [--name NAME]
@@ -196,7 +195,7 @@ cinder consisgroup-create-from-src
 
 * 卷类型的增强功能主要包含两个：为某一项目创建私有的卷类型和为卷类型增加描述信息
 
-```
+``` plain cinder
 cinder type-create <name> --is-public
 cinder type-create <name> <description>
 ```
@@ -212,7 +211,7 @@ cinder type-create <name> <description>
 ## Keystone新功能
 * 项目嵌套，创建一个新的Project时候，可以指定parent的Project
 
-```
+``` plain keystone
 POST /projects
 
 {
@@ -234,7 +233,7 @@ POST /projects
 * 纠删码的加入应该是这个版本最大的亮点，但是纠删码作为beta版本发布，并不推荐应用于生产环境，关于纠删码的详细介绍可以参考：http://docs.openstack.org/developer/swift/overview_erasure_code.html
 * 复合型令牌，简而言之就是需要用户加上服务的Token才能对Swfit存放的内容进行操作，如下图所示：
 
-```
+``` plain swift
 client
    \
     \   <request>: <path-specific-to-the-service>
@@ -256,13 +255,13 @@ client
 ## Ceilometer新功能
 * 支持Ceph对象存储监控，当对象存储为Ceph而不是Swfit的时候，使用Polling机制，使用Ceph的Rados Gateway的API接口获取数据，具体的设计文档：https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer_ceph_integration.rst
 * Ceilometer API RBAC - 更细粒度的权限控制: https://github.com/openstack/ceilometer-specs/blob/master/specs/kilo/ceilometer-rbac.rst
-```
+``` plain Ceilometer
 {
     "context_is_admin": [["role:admin"]]
 }
 ```
 更细粒度的控制
-```
+``` plain Ceilometer
 {
      "context_is_admin": [["role:admin"]],
      "admin_or_cloud_admin": [["rule:context_is_admin"],
