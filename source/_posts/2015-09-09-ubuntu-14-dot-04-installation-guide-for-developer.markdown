@@ -7,13 +7,13 @@ categories: [openstack, ubuntu]
 ---
 
 ## 为什么会写这篇Blog
-
 近期，接触了一些OpenStack的入门者，很多人对Linux系统并不是很熟悉，导致安装出来的系统五花八门，间接地影响了后面的开发与调试，所以这里给出我的安装流程，供初学者们参考。我使用的是Ubuntu 14.04 64bit Server版本的ISO进行安装，其他版本方法类似。
 
 <!-- more -->
 
 ## 注意
 这篇Blog没有提及的地方：
+
 * 网络，需要根据实际情况进行配置，我这里面使用的是DHCP自动获取，所以没有相关步骤
 * 分区，这里面使用的是默认配置，但是生产环境的配置一般需要手动划分
 
@@ -63,3 +63,6 @@ categories: [openstack, ubuntu]
 {% img center /images/blogs/install-ubuntu/27.png %}
 * 重启完成安装
 {% img center /images/blogs/install-ubuntu/28.png %}
+
+## 后记
+谨记此篇Blog送给我的小徒弟周小球小朋友，希望你能利用利用最后的一年的时间努力学习，找到称心如意的工作。
