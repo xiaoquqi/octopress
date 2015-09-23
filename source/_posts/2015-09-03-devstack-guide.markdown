@@ -21,7 +21,7 @@ Devstack作为开发OpenStack必不可少的辅助环境搭建工具，其重要
 
 ## 运行环境的选择
 
-对于刚刚接触OpenStack的开发者而言，没有那么多闲置的资源，所以比较容易的上手方式就是使用虚拟机。对于桌面的虚拟机软件来说，主流的软件无外乎VMWare Workstation和Oracle Virtualbox，对于OpenStack开发而言，二者并无太大差异。以下几点可能会作为选择的主要依据：
+对于刚刚接触OpenStack的开发者而言，没有太多闲置的资源，所以比较容易的上手方式就是使用虚拟机。对于桌面的虚拟机软件来说，主流的软件无外乎VMWare Workstation和Oracle Virtualbox，对于OpenStack开发而言，二者并无太大差异。以下几点可能会作为选择的主要依据：
 
 * VMWare Workstation是收费软件，Virtualbox是免费软件
 * VMWare Workstation支持nested virtualization，就是安装完的devstack virt type是kvm，节省资源，Virtualbox安装以后只能使用qemu，虽然在Virtualbox 5以上版本号称支持，但是实际验证中仍然不能生效，还在研究中
@@ -30,9 +30,9 @@ Devstack作为开发OpenStack必不可少的辅助环境搭建工具，其重要
 
 ## Virtualbox网络设置
 
-{% img center /images/blogs/devstack-guide-neutron-topology.jpg %}
+{% img center /images/blogs/devstack-guide-network-topology.jpg %}
 
-* 网卡配置
+* Nova Network网卡配置
 
 ``` plain /etc/network/interface
 auto eth0
@@ -40,7 +40,24 @@ iface eth0 inet dhcp
 
 auto eth1
 iface eth1 inet static
-address 192.168.56.102
+address 192.168.56.101
+netmask 255.255.255.0
+
+auto eth2
+iface eth1 inet static
+address 172.16.0.101
+netmask 255.255.255.0
+```
+
+* Neutron网卡配置
+
+``` plain /etc/network/interface
+auto eth0
+iface eth0 inet dhcp
+
+auto eth1
+iface eth1 inet static
+address 192.168.56.101
 netmask 255.255.255.0
 
 auto eth2
@@ -224,23 +241,15 @@ SCREEN_LOGDIR=$DEST/logs
 
 这应该就是Devstack默认的模式，有以下几点需要注意：
 
-* 如果对虚拟机访问外部网络没有要求，需要设置两块网卡
+* 根据上面的网卡配置
 
 > 第一块网卡为NAT方式，用于访问外部网络
 >
 > 第二块为Host-only Adaptor，用于访问云平台
 >
-> FLAT_INTERFACE=eth1
-
-* 如果需要虚拟机访问外部网络
-
-> FLAT_INTERFACE=eth0
+> 第三块为Host-only Adaptor，用于虚拟机桥接网路
 >
-> 需要注意的是：这里会引发出DHCP冲突的问题，Virtualbox提供 DHCP的服务，速度上要快于dnsmasq，所以每次获取的时候都是获取的NAT网卡的地址，导致虚拟机无法访问外部网络，解决方案只能手动的修改IP，比如设定为静态地址的方式。曾将也尝试过Virtualbox的NAT Network模式，并且关闭DHCP Server，但是发现虚拟机仍然无法正常访问网络，所以该方案也无法达到我们的目的，所以在这个问题上，暂时没有找到完美的解决方案
-
-* 虚拟机FLOATING IP需要被外界访问
-
-> 需要将第一块网卡设置为Bridge模式，直接获取物理网络的IP地址，在配置文件中配置分配的物理网络的FLOATING_RANGE，同样需要注意的是物理网络中的DHCP同样会造成和上述第二点同样的干扰
+> 需要注意的是：这种方式下并不能让虚拟机正常访问外部网络，可以通过将eth2设置为Bridge模式，但是这样会造成DHCP冲突(如果外部网络有DHCP)，所以暂时没有完美的解决方案
 
 * 打开novnc和consoleauth，否则无法访问VNC
 
@@ -255,7 +264,7 @@ FLAT_INTERFACE=eth1
 HOST_IP=192.168.56.101
 FIXED_RANGE=172.24.17.0/24
 FIXED_NETWORK_SIZE=254
-FLOATING_RANGE=192.168.1.128/25
+FLOATING_RANGE=172.16.0.128/25
 ```
 
 ## Scenario 2: 双节点Nova-Network的安装
@@ -281,7 +290,7 @@ enable_service n-novnc n-cauth
 ENABLED_SERVICES=n-cpu,n-net,n-api-meta,c-vol
 
 # current host ip
-HOST_IP=192.168.56.102
+HOST_IP=192.168.56.101
 FLAT_INTERFACE=eth1
 # needed by cinder-volume service
 DATABASE_TYPE=mysql
@@ -310,7 +319,7 @@ disable_service n-net
 ENABLED_SERVICES+=,q-svc,q-agt,q-dhcp,q-l3,q-meta,neutron
 ENABLED_SERVICES+=,q-lbaas,q-vpn,q-fwaas
 
-HOST_IP=192.168.56.102
+HOST_IP=192.168.56.101
 FIXED_RANGE=20.0.0.0/24
 NETWORK_GATEWAY=20.0.0.1
 FLOATING_RANGE=172.16.0.0/24
@@ -338,7 +347,7 @@ sudo ovs-vsctl add-port br-ex eth2
 ``` plain devstack/localrc
 # Nova
 enable_service n-novnc n-cauth
-HOST_IP=192.168.56.102
+HOST_IP=192.168.56.101
 disable_service n-cpu n-net n-api-meta c-vol
 
 # Neutron
@@ -363,7 +372,7 @@ HOST_IP=192.168.56.103
 DATABASE_TYPE=mysql
 
 # controller ip
-SERVICE_HOST=192.168.56.102
+SERVICE_HOST=192.168.56.101
 MYSQL_HOST=$SERVICE_HOST
 RABBIT_HOST=$SERVICE_HOST
 GLANCE_HOSTPORT=$SERVICE_HOST:9292
