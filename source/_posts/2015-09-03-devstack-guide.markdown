@@ -10,10 +10,10 @@ Devstack作为开发OpenStack必不可少的辅助环境搭建工具，其重要
 
 本篇Blog主要介绍以下几个实用场景：
 
-* 提供Devstack安装成功率的方法
+* 如何利用Devstack构建一套完美的开发环境
+* 提高Devstack安装成功率的方法
 * Devstack的实用技巧
 * 各种场景下的配置和注意事项
-* 超级localrc
 
 本篇博客提到的所有方法均在2015年9月4日使用stable/kilo branch得到验证，后续版本请持续关注本博客。
 
@@ -21,11 +21,60 @@ Devstack作为开发OpenStack必不可少的辅助环境搭建工具，其重要
 
 ## 运行环境的选择
 
-对于初步接触OpenStack的开发者而言，未必有那么多闲置的资源供你调配，所以比较容易的上手方式就是使用虚拟机，对于桌面的虚拟机软件来说，主流的软件无外乎VMWare Workstation和Oracle Virtualbox，对于OpenStack开发而言，二者并无太大差异。以下几点可能会作为选择的主要依据：
+对于刚刚接触OpenStack的开发者而言，没有那么多闲置的资源，所以比较容易的上手方式就是使用虚拟机。对于桌面的虚拟机软件来说，主流的软件无外乎VMWare Workstation和Oracle Virtualbox，对于OpenStack开发而言，二者并无太大差异。以下几点可能会作为选择的主要依据：
+
 * VMWare Workstation是收费软件，Virtualbox是免费软件
-* VMWare Workstation支持nested virtualization，就是安装完的devstack virt type是kvm，Virtualbox安装以后只能使用qemu，虽然在Virtualbox 5以上版本号称支持，但是实际验证中仍然不能生效，还在研究中
+* VMWare Workstation支持nested virtualization，就是安装完的devstack virt type是kvm，节省资源，Virtualbox安装以后只能使用qemu，虽然在Virtualbox 5以上版本号称支持，但是实际验证中仍然不能生效，还在研究中
 * VMWare Workstation使用NAT方式时，内部的IP可以在HOST主机直接访问到，Virtualbox还需要端口转发，所以建议单独增加一块Host-only的Apdaptor便于调试
 * 使用Virtualbox时，为了让虚拟机能够访问外部网络，并且允许Host通过Floating IP对虚拟机进行访问，需要在Host层面设置NAT规则，转换到可以访问的物理网卡上，详情请见下文
+
+## Virtualbox网络设置
+
+{% img center /images/blogs/devstack-guide-neutron-topology.jpg %}
+
+* 网卡配置
+
+``` plain /etc/network/interface
+auto eth0
+iface eth0 inet dhcp
+
+auto eth1
+iface eth1 inet static
+address 192.168.56.102
+netmask 255.255.255.0
+
+auto eth2
+iface eth2 inet manual
+up ip link set dev $IFACE up
+down ip link set dev $IFACE down
+```
+
+* MAC网卡NAT映射
+
+我们将第三块网卡作为提供外部网络的接口，采用系统层面的NAT方式让该网卡能够访问外部网络。
+
+``` plain bash
+sudo sysctl net.inet.ip.forwarding=1
+```
+
+在nat-anchor后面添加
+
+``` plain /etc/pf.conf
+nat on en0 from 172.16.0.0/24 -> (en0)
+```
+
+之后加载
+
+``` bash bash
+sudo pfctl -e -f /etc/pf.conf
+```
+
+* Linux网卡NAT映射
+
+``` plain bash
+echo 1 > /proc/sys/net/ipv4/ip_forward
+iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
+```
 
 ## Devstack快速开始
 
@@ -248,53 +297,7 @@ VNCSERVER_LISTEN=$HOST_IP
 VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN
 ```
 
-## Scenario 3: 单节点Neutron的安装(Virtualbox)
-
-{% img center /images/blogs/devstack-guide-neutron-topology.jpg %}
-
-* 网卡配置
-
-``` plain /etc/network/interface
-auto eth0
-iface eth0 inet dhcp
-
-auto eth1
-iface eth1 inet static
-address 192.168.56.102
-netmask 255.255.255.0
-
-auto eth2
-iface eth2 inet manual
-up ip link set dev $IFACE up
-down ip link set dev $IFACE down
-```
-
-* MAC网卡NAT映射
-
-我们将第三块网卡作为提供外部网络的接口，采用系统层面的NAT方式让该网卡能够访问外部网络。
-
-``` plain bash
-sudo sysctl net.inet.ip.forwarding=1
-```
-
-在nat-anchor后面添加
-
-``` plain /etc/pf.conf
-nat on en0 from 172.16.0.0/24 -> (en0)
-```
-
-之后加载
-
-``` bash bash
-sudo pfctl -e -f /etc/pf.conf
-```
-
-* Linux网卡NAT映射
-
-``` plain bash
-echo 1 > /proc/sys/net/ipv4/ip_forward
-iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE
-```
+## Scenario 3: 单节点Neutron的安装
 
 * 基本配置
 
@@ -369,6 +372,20 @@ NOVNCPROXY_URL="http://$SERVICE_HOST:6080/vnc_auto.html"
 VNCSERVER_LISTEN=$HOST_IP
 VNCSERVER_PROXYCLIENT_ADDRESS=$VNCSERVER_LISTEN
 Q_HOST=$SERVICE_HOST
+```
+
+* OVS设置
+
+由于在Devstack安装过程中，将br-ex的地址也设置成了PUBLIC_NETWORK_GATEWAY的地址，但是实际使用过程中，我们建立的Host Apdator充当了gateway的角色，所以为了避免冲突，直接将br-ex地址清除掉。
+
+``` bash bash
+sudo ip addr flush dev br-ex
+```
+
+之后将eth2作为br-ex的port，之后创建的虚拟机就可以通过eth2访问网络了，Host也可以通过floating ip访问虚拟机了。
+
+``` bash bash
+sudo ovs-vsctl add-port br-ex eth2
 ```
 
 ## Scenario 5: 从源代码安装客户端
