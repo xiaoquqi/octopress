@@ -107,3 +107,6 @@ duoshuo_short_name: xiaoquqi
 
 # Baidu Analytics
 baidu_analytics_tracking_id: d43617b82d6762df4e16d4c93de17177
+
+# QQ Analytics
+qq_analytics_tracking_id: 51237761
