@@ -45,6 +45,7 @@ OpenStack Liberty完整版本的翻译可见：https://wiki.openstack.org/wiki/R
 {% img center /images/blogs/contribution-in-liberty-99cloud.png 800x600 %}
 
 排名第16位的是99cloud，99cloud自上一个版本排名四朵小云之首后，本次继续强劲来袭，排名创造历史新高，第16名。通过对贡献模块的分析，我们能看出99cloud最大的贡献来自于社区文档，而在项目方面的贡献则主要来自murano-dashboard，horizon，neutron等项目上，从中可以看出99cloud对murano这个applicaton catalog的项目关注程度比较高，可能会在将来的产品中有所体现。从贡献中，我们隐约看到了九州云的副总裁李开总的提交，由此可见九州云为社区贡献的积极程度。
+更加难能可贵的是，Horizon的全球贡献99cloud是全球前十，Tempest全球前八，Murano项目更是进入全球前三，相当给力。
 
 *** UnitedStack社区贡献统计 ***
 {% img center /images/blogs/contribution-in-liberty-unitedstack.png 800x600 %}
