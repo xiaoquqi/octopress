@@ -26,9 +26,9 @@ Openstack官方的Release的网站已经更新为：http://releases.openstack.or
 
 下面是最近三个版本Release的详细对比：
 
-让我们先来关注一些这次Release中的三个新项目：
-
 {% img center /images/blogs/contribution-in-newton-projects.png %}
+
+让我们来关注这次Release中的三个新项目：
 
 ### Panko(计量服务事件消息存储)
 
